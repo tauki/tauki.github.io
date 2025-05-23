@@ -8,7 +8,7 @@ permalink: /blog/
 
 {% for post in site.posts %}
 ## [{{ post.title }}]({{ post.url | relative_url }})
-{{ post.date | date: "%B %-d, %Y" }}
+{{ post.date | date: "%B %-d, %Y" }} - {% include reading_time.html content=post.content %}
 
 {{ post.excerpt }}
 
