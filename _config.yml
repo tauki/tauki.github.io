@@ -1,7 +1,7 @@
 title: Your Name
 description: Personal website and blog
 baseurl: "" # the subpath of your site, e.g. /blog
-url: "https://tauki.me" # your custom domain
+url: "https://tauki.site" # your custom domain
 
 # Build settings
 markdown: kramdown
