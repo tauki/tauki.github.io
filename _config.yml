@@ -1,14 +1,27 @@
-title: Your Name
+title: Tauki Tahmid
 description: Personal website and blog
-baseurl: "" # the subpath of your site, e.g. /blog
+
 url: "https://tauki.site" # your custom domain
 
 # Build settings
 markdown: kramdown
-theme: minima
+
 plugins:
   - jekyll-feed
   - jekyll-seo-tag
+
+collections:
+  notes:
+    output: true
+    permalink: /notes/:path/
+
+defaults:
+  - scope:
+      path: ""
+      type: "notes"
+    values:
+      layout: "default"
+
 
 # Exclude from processing
 exclude:
@@ -18,4 +31,5 @@ exclude:
   - vendor/bundle/
   - vendor/cache/
   - vendor/gems/
-  - vendor/ruby/ 
+  - vendor/ruby/
+  - _notes/assets/ 
