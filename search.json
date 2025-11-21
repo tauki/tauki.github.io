@@ -1,0 +1,15 @@
+---
+layout: null
+---
+[
+  {% assign notes = site.notes %}
+  {% for note in notes %}
+    {
+      "title": "{{ note.title | escape }}",
+      "url": "{{ note.url | relative_url }}",
+      "date": "{{ note.date | date: "%b %-d, %Y" }}",
+      "content": "{{ note.content | strip_html | strip_newlines | escape }}"
+    }
+    {% unless forloop.last %},{% endunless %}
+  {% endfor %}
+]
