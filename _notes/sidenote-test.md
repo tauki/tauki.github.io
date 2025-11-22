@@ -4,7 +4,7 @@ title: "Sidenote Test"
 subtitle: "Exploring marginalia and layout features"
 image: https://placehold.co/120x80
 categories: [Tech]
-published: true
+published: false
 ---
 
 # Testing Sidenotes
