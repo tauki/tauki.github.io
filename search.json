@@ -2,7 +2,7 @@
 layout: null
 ---
 [
-  {% assign notes = site.notes %}
+  {% assign notes = site.notes | where_exp: "item", "item.published != false" %}
   {% for note in notes %}
     {
       "title": "{{ note.title | escape }}",
