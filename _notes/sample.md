@@ -2,6 +2,7 @@
 
 title: "Sample Note"
 date: 2023-05-15 10:00:00 +0000
+published: false
 ---
 
 # Introduction to Paper Design
