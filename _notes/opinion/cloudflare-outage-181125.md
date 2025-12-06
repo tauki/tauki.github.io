@@ -14,8 +14,9 @@ published: true
 <details>
   <summary>TL;DR (AI)</summary>
   Cloudflare’s global outage wasn’t caused by one bug; it was a chain reaction. A ClickHouse permissions change exposed extra metadata, breaking a query that silently assumed only one database. That bad query generated oversized ML feature configs, which were then pushed globally without safeguards. Those configs exceeded a hard limit in the proxy’s Bot Management module, triggering a Rust .unwrap() panic and causing widespread 5xx errors. The fix involved stopping the bad configs, pushing a safe one, and restarting the proxy fleet.
-
-***Core lessons:*** make assumptions explicit, validate configs like code, avoid unwrap() in critical paths, and build systems that fail safely. Modern outages are rarely one failure, they’re interacting, compounding assumptions breaking at the same time.
+ 
+<br/><br/>
+<b>Core lessons:</b> make assumptions explicit, validate configs like code, avoid unwrap() in critical paths, and build systems that fail safely. Modern outages are rarely one failure, they’re interacting, compounding assumptions breaking at the same time.
 </details>
 
 --- 
@@ -157,11 +158,11 @@ Now, the Rust side:
 - That error was wrapped in a Result.
 - Then someone wrote .unwrap() on it in FL2, causing a panic if the limit was exceeded.
 
-Why this is bad in this context: 
+###  Why this is bad in this context
 - This is not a “this can literally never fail or the process should die” scenario. It’s config loading, which is exactly where you expect occasional weird data.
 - In a global edge system, panicking a worker thread under config load → taking out real user traffic → is not an acceptable failure mode. 
 
-Reasonable alternatives: 
+###  Reasonable alternatives
 - Log error, reject new config, keep using last known good config. 
 - Start in “bots disabled / degraded mode” but continue serving traffic.
 - Trip a circuit breaker and alert SRE, but don’t panic the worker. 
