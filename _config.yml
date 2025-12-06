@@ -1,7 +1,15 @@
-title: Tauki Tahmid
+title: Tauki Talks
 description: Personal website and blog
 
 url: "https://tauki.site" # your custom domain
+author:
+  name: Tauki Tahmid
+
+# Prose Journal Settings
+prose_categories:
+  - prose
+  - story
+  - poem
 
 # Build settings
 markdown: kramdown
@@ -10,10 +18,14 @@ plugins:
   - jekyll-feed
   - jekyll-seo-tag
 
+feed:
+  collections:
+    - notes
+
 collections:
   notes:
     output: true
-    permalink: /notes/:path/
+    permalink: /notes/:slug/
 
 defaults:
   - scope:

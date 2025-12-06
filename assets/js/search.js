@@ -43,16 +43,20 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-// Search logic
+const BATCH_SIZE = 10;
+let filteredResults = [];
+let loadedCount = 0;
+
 if (searchInput) {
     searchInput.addEventListener('input', (e) => {
         const query = e.target.value.toLowerCase();
         if (query.length < 2) {
             searchResults.innerHTML = '';
+            filteredResults = [];
             return;
         }
 
-        const results = searchData.reduce((acc, item) => {
+        filteredResults = searchData.reduce((acc, item) => {
             const titleMatch = item.title.toLowerCase().includes(query);
             const contentSnippets = getSnippets(item.content, query);
 
@@ -65,27 +69,45 @@ if (searchInput) {
             return acc;
         }, []);
 
-        // Limit to 5 results for clean UI
-        const limitedResults = results.slice(0, 5);
+        loadedCount = 0;
+        searchResults.innerHTML = ''; // Clear previous results
 
-        if (limitedResults.length > 0) {
-            searchResults.innerHTML = limitedResults.map(item => {
-                const snippetsHTML = item.snippets.map(snippet =>
-                    `<div class="search-snippet">...${snippet}...</div>`
-                ).join('');
+        if (filteredResults.length > 0) {
+            renderNextBatch(query);
+        } else {
+            searchResults.innerHTML = '<div class="search-no-results">No results found</div>';
+        }
+    });
 
-                return `
+    // Infinite scroll listener
+    searchResults.addEventListener('scroll', () => {
+        if (searchResults.scrollTop + searchResults.clientHeight >= searchResults.scrollHeight - 20) {
+            if (loadedCount < filteredResults.length) {
+                renderNextBatch(searchInput.value.toLowerCase());
+            }
+        }
+    });
+}
+
+function renderNextBatch(query) {
+    const nextBatch = filteredResults.slice(loadedCount, loadedCount + BATCH_SIZE);
+
+    const html = nextBatch.map(item => {
+        const snippetsHTML = item.snippets.map(snippet =>
+            `<div class="search-snippet">...${snippet}...</div>`
+        ).join('');
+
+        return `
           <a href="${item.url}" class="search-result-item">
             <div class="search-result-title">${highlightText(item.title, query)}</div>
             <div class="search-result-date">${item.date}</div>
             ${snippetsHTML}
           </a>
         `;
-            }).join('');
-        } else {
-            searchResults.innerHTML = '<div class="search-no-results">No results found</div>';
-        }
-    });
+    }).join('');
+
+    searchResults.insertAdjacentHTML('beforeend', html);
+    loadedCount += nextBatch.length;
 }
 
 function getSnippets(content, query) {

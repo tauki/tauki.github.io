@@ -17,4 +17,11 @@ They are great for adding context without breaking the flow of reading. Unlike f
 
 On mobile devices, these notes should be hidden by default and revealed when you click the number. {% include sidenote.html id="3" content="I am a hidden note on mobile! Click me to see." %}
 
+
 Let's see how it looks!
+
+## Margin Notes (Unnumbered)
+
+Sometimes you just want a comment or annotation without a number reference. For that, we use **Margin Notes**. {% include marginnote.html id="mn1" content="I am a margin note! I have no number, just a symbol on mobile." %}
+
+They sit in the margin just like sidenotes but are less intrusive. Great for "meta" commentary or side thoughts. {% include marginnote.html id="mn2" content="Use me for things that don't need a strict citation." %}

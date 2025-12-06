@@ -34,8 +34,12 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // TOC Logic
-    const tocContainer = document.getElementById('toc-sidebar');
-    if (tocContainer) {
+    let tocObserver = null;
+
+    function initTOC() {
+        const tocContainer = document.getElementById('toc-sidebar');
+        if (!tocContainer) return;
+
         // Don't generate TOC on homepage
         if (document.querySelector('.home-layout')) {
             tocContainer.style.display = 'none';
@@ -48,9 +52,15 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        // Check for sidenotes
-        const hasSidenotes = document.querySelector('.sidenote') !== null;
-        const isCollapsed = hasSidenotes; // Default to collapsed if sidenotes exist
+        // Check for sidenotes or marginnotes
+        const hasSidenotes = document.querySelector('.sidenote') !== null || document.querySelector('.marginnote') !== null;
+
+        // Check if previously collapsed or default to hasSidenotes
+        const existingContent = document.querySelector('.toc-content');
+        let isCollapsed = hasSidenotes;
+        if (existingContent) {
+            isCollapsed = existingContent.classList.contains('collapsed');
+        }
 
         let tocHTML = `
       <div class="toc-header" onclick="toggleToc()">
@@ -71,6 +81,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         tocHTML += '</ul></div>';
         tocContainer.innerHTML = tocHTML;
+        tocContainer.style.display = 'block';
 
         // Scroll Spy for Active Link
         const observerOptions = {
@@ -79,7 +90,11 @@ document.addEventListener('DOMContentLoaded', function () {
             threshold: 0
         };
 
-        const observer = new IntersectionObserver((entries) => {
+        if (tocObserver) {
+            tocObserver.disconnect();
+        }
+
+        tocObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     const id = entry.target.getAttribute('id');
@@ -93,14 +108,114 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }, observerOptions);
 
-        headers.forEach(header => observer.observe(header));
+        headers.forEach(header => tocObserver.observe(header));
 
         // Expose toggle function globally
         window.toggleToc = function () {
             const content = document.querySelector('.toc-content');
             const btn = document.querySelector('.toc-toggle-btn');
-            content.classList.toggle('collapsed');
-            btn.textContent = content.classList.contains('collapsed') ? '▼' : '▲';
+            if (content && btn) {
+                content.classList.toggle('collapsed');
+                btn.textContent = content.classList.contains('collapsed') ? '▼' : '▲';
+                // Re-align sidenotes after transition
+                setTimeout(() => {
+                    if (window.alignSidenotes) window.alignSidenotes();
+                }, 300); // 300ms matches standard transition time, adjust if needed
+            }
         };
     }
+
+    // Run on load
+    initTOC();
+
+    // Expose initTOC globally
+    window.initTOC = initTOC;
+
+    // Sidenote Alignment Logic
+    function alignSidenotes() {
+        if (window.innerWidth <= 1000) return; // Only run on desktop
+
+        const notes = document.querySelectorAll('.sidenote, .marginnote');
+        if (notes.length === 0) return;
+
+        const toc = document.getElementById('toc-sidebar');
+        let lastBottom = 0;
+
+        // Initialize lastBottom to TOC bottom if it exists and is visible
+        if (toc && toc.offsetParent !== null) {
+            const tocRect = toc.getBoundingClientRect();
+            // We use the visual bottom of the TOC as the starting point + a buffer
+            lastBottom = tocRect.bottom;
+        }
+
+        notes.forEach(note => {
+            // Find the closest block-level parent (paragraph, blockquote, list item)
+            const parent = note.closest('p, blockquote, li') || note.parentElement;
+            if (!parent) return;
+
+            // Reset margin to calculate natural position
+            note.style.marginTop = '0';
+
+            const parentRect = parent.getBoundingClientRect();
+            const noteRect = note.getBoundingClientRect();
+
+            let idealTop = parentRect.top;
+            const currentTop = noteRect.top;
+
+            // Check for collision with TOC area
+            // If the note's ideal position is above the TOC bottom (plus buffer), it conflicts
+            if (idealTop < lastBottom) {
+                // Conflict! Push it into the article
+                note.classList.add('sidenote-pushed-in');
+                note.style.marginTop = '0';
+                // When pushed in, it doesn't take up sidebar vertical space, so we don't update lastBottom
+                // based on this note's height (it effectively disappears from the sidebar flow).
+                // However, we should keep lastBottom as is (TOC bottom) for subsequent notes.
+            } else {
+                // No conflict with TOC, align normally in sidebar
+                note.classList.remove('sidenote-pushed-in');
+
+                // Now check for collision with previous sidebar note (if any)
+                // We need to track the actual bottom of the *sidebar content*
+                // Since this note is in the sidebar, we calculate its position
+
+                // Wait, lastBottom currently tracks the TOC bottom only? 
+                // We need `lastSidebarBottom` variable to track note stacking.
+                // But simplified: lastBottom is the "safe zone" start.
+
+                // If we are here, idealTop >= lastBottom (TOC bottom).
+                // So we are below TOC. We just need to make sure we don't overlap previous notes.
+                // But wait, if we skipped previous notes (pushed them in), they don't affect sidebar height.
+                // So lastBottom should track the bottom of the last *sidebar* item.
+
+                // Let's refine the logic:
+                // lastBottom starts at TOC bottom.
+                // If a note is placed in sidebar, lastBottom advances to that note's bottom.
+
+                if (idealTop < lastBottom) {
+                    // This case handles collision with *previous note* (since we already established it's below TOC from the first check? 
+                    // No, lastBottom grows. So this check is valid.)
+
+                    const targetTop = lastBottom + 10;
+                    const offset = currentTop - targetTop;
+                    // margin-top: -(currentTop - targetTop) = targetTop - currentTop
+                    // This pushes it DOWN.
+                    note.style.marginTop = `-${currentTop - targetTop}px`;
+                    lastBottom = targetTop + noteRect.height;
+                } else {
+                    lastBottom = idealTop + noteRect.height;
+                    note.style.marginTop = `-${currentTop - idealTop}px`;
+                }
+            }
+        });
+    }
+
+    // Expose for TOC toggle
+    window.alignSidenotes = alignSidenotes;
+
+    // Run on load and resize
+    window.addEventListener('load', alignSidenotes);
+    window.addEventListener('resize', alignSidenotes);
+    // Also run immediately in case load already happened
+    alignSidenotes();
 });

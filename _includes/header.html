@@ -1,11 +1,14 @@
 <header class="site-header">
   <div class="wrapper">
     <div class="header-left">
-      <a class="site-title" rel="author" href="/">{{ site.title | escape }}</a>
+      <a class="site-title" rel="author" href="/">
+        <img src="/assets/images/logo.png" alt="{{ site.title }}" class="site-logo">
+      </a>
     </div>
 
     <nav class="site-nav">
       <a class="page-link" href="/notes/">Notes</a>
+      <a class="page-link" href="/prose/">Prose</a>
       <a class="page-link" href="/about/">About</a>
     </nav>
 
@@ -45,6 +48,14 @@
           <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
         </svg>
       </button>
+      <a href="/feed.xml" class="rss-toggle" title="RSS Feed">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 11a9 9 0 0 1 9 9"></path>
+          <path d="M4 4a16 16 0 0 1 16 16"></path>
+          <circle cx="5" cy="19" r="1"></circle>
+        </svg>
+      </a>
       <button class="theme-toggle" id="theme-toggle" title="Toggle Dark Mode"></button>
     </div>
   </div>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {%- seo -%}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="icon" type="image/png" href="/assets/images/favicon.png">
+    <link rel="stylesheet" href="/assets/css/style.css?v={{ site.time | date: '%s' }}">
+    <link rel="alternate" type="application/rss+xml" title="{{ site.title }}" href="{{ " /feed.xml" | relative_url }}">
+</head>
+
+<body>
+
+    {% include header.html %}
+
+    <main class="page-content" aria-label="Content">
+        <div class="wrapper prose-wrapper">
+            <article class="post prose-post">
+                <header class="post-header prose-header">
+                    <h1 class="post-title">{{ page.title | escape }}</h1>
+                    {% if page.subtitle %}
+                    <p class="post-subtitle">{{ page.subtitle }}</p>
+                    {% endif %}
+                    <p class="post-meta">
+                        {{ page.date | date: "%b %-d, %Y" }}
+                    </p>
+                </header>
+                <div class="post-content prose-content">
+                    {{ content }}
+                </div>
+            </article>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="wrapper prose-wrapper">
+        </div>
+    </footer>
+
+    {% include search-modal.html %}
+
+    <script src="/assets/js/search.js?v={{ site.time | date: '%s' }}"></script>
+    <script src="/assets/js/main.js?v={{ site.time | date: '%s' }}"></script>
+</body>
+
+</html>

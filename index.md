@@ -8,8 +8,25 @@ title: Home
 <div class="home-container">
   
   <div class="home-main">
+    {% assign prose_categories = site.prose_categories %}
     {% assign notes = site.notes | sort: 'date' | reverse %}
     {% for note in notes %}
+      {% assign show_post = false %}
+      
+      {% if note.categories.size == 0 %}
+        {% assign show_post = true %}
+      {% else %}
+        {% for category in note.categories %}
+          {% unless prose_categories contains category %}
+            {% assign show_post = true %}
+            {% break %}
+          {% endunless %}
+        {% endfor %}
+      {% endif %}
+      
+      {% unless show_post %}
+        {% continue %}
+      {% endunless %}
       <div class="post-item" data-categories="{{ note.categories | join: ' ' | downcase }}">
         <div class="post-date-side">
           {{ note.date | date: "%b %-d, %Y" }}
@@ -33,6 +50,8 @@ title: Home
 
               {% if note.subtitle %}
                 <p class="post-subtitle">{{ note.subtitle }}</p>
+              {% elsif note.layout == 'prose' %}
+                <p class="post-subtitle">{{ note.content | strip_html | truncate: 200 }}</p>
               {% endif %}
             </div>
             
@@ -51,6 +70,9 @@ title: Home
       <li><a href="#" onclick="filterPosts('all'); return false;" class="category-link active" data-category="all">All</a></li>
       {% assign all_categories = site.notes | map: "categories" | flatten | uniq | sort %}
       {% for category in all_categories %}
+        {% if prose_categories contains category %}
+          {% continue %}
+        {% endif %}
         <li><a href="#" onclick="filterPosts('{{ category | downcase }}'); return false;" class="category-link" data-category="{{ category | downcase }}">{{ category }}</a></li>
       {% endfor %}
       <li><a href="#" onclick="filterPosts('uncategorized'); return false;" class="category-link" data-category="uncategorized">Uncategorized</a></li>

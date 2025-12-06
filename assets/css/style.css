@@ -2,6 +2,7 @@
 ==========================================================================
    1. Variables
 ========================================================================== */
+
 :root {
   --bg-color: #fdfbf7;
   --text-color: #222;
@@ -11,8 +12,12 @@
   --meta-color: #666;
   --code-bg: #f5f5f5;
   --border-color: #e0e0e0;
+
+  /* Previous Fonts (Restored) */
   --font-serif: 'Lora', serif;
   --font-sans: 'Inter', sans-serif;
+  --font-heading: 'Playfair Display', serif;
+
   --toggle-icon: "🌙";
 }
 
@@ -47,6 +52,10 @@
 ==========================================================================
    2. Base Styles
 ========================================================================== */
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   font-family: var(--font-serif);
   color: var(--text-color);
@@ -64,7 +73,7 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: var(--font-sans);
+  font-family: var(--font-heading);
   color: var(--heading-color);
   margin-top: 2em;
   margin-bottom: 0.5em;
@@ -266,6 +275,8 @@ pre code {
   color: var(--meta-color);
   transition: color 0.2s ease;
   display: block;
+  font-size: 0.9rem;
+  /* Uniform size */
 }
 
 .toc-list a:hover,
@@ -276,7 +287,7 @@ pre code {
 
 .toc-list .toc-h3 {
   padding-left: 15px;
-  font-size: 0.85rem;
+  /* font-size: 0.85rem; Removed to keep size uniform */
 }
 
 .home-layout,
@@ -321,12 +332,20 @@ pre code {
   gap: 15px;
 }
 
+.site-logo {
+  height: 64px;
+  width: auto;
+  display: block;
+  border-radius: 4px;
+  margin: 0;
+  /* Ensure no default margins */
+}
+
 .site-title {
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--heading-color);
+  /* Removed font styles since it's an image now */
+  display: flex;
+  align-items: center;
   text-decoration: none;
-  letter-spacing: -0.5px;
 }
 
 .site-nav .page-link {
@@ -598,7 +617,8 @@ pre code {
 }
 
 /* Sidenotes */
-.sidenote {
+.sidenote,
+.marginnote {
   float: right;
   clear: right;
   margin-right: -42%;
@@ -636,6 +656,11 @@ pre code {
   content: counter(sidenote-counter) ". ";
 }
 
+/* Marginnote specific */
+.marginnote:before {
+  content: none;
+}
+
 input.margin-toggle {
   display: none;
 }
@@ -647,6 +672,14 @@ label.sidenote-number {
 
 label.margin-toggle:not(.sidenote-number) {
   display: none;
+}
+
+.margin-toggle.symbol {
+  cursor: pointer;
+  font-size: 0.8rem;
+  vertical-align: super;
+  line-height: 0;
+  color: var(--link-color);
 }
 
 article.post {
@@ -795,18 +828,121 @@ article.post {
 ==========================================================================
    5. Responsive
 ========================================================================== */
-@media (max-width: 1200px) {
+/* Prose Layout */
+.prose-wrapper {
+  max-width: 680px;
+  /* Narrower than standard 760px */
+}
+
+.prose-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.prose-header .post-title {
+  font-size: 2.2rem;
+  border-bottom: none;
+  margin-bottom: 10px;
+}
+
+.prose-header .post-subtitle {
+  font-size: 1.1rem;
+  color: var(--meta-color);
+  font-style: italic;
+}
+
+.prose-header .post-meta {
+  margin-top: 15px;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  color: var(--meta-color);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.prose-content {
+  font-size: 1.1rem;
+  /* Slightly larger for reading */
+  line-height: 1.8;
+  padding-bottom: 40px;
+  /* Match header gap */
+}
+
+/* Hide TOC/Sidenote elements if they accidentally appear */
+.prose-content .toc-sidebar,
+.prose-content .sidenote {
+  display: none;
+}
+
+/* Footer */
+.site-footer {
+  padding: 0;
+  margin: 0;
+}
+
+/* Header Icons */
+.search-toggle,
+.theme-toggle,
+.rss-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-color);
+  font-size: 1.2rem;
+  padding: 5px;
+  margin-left: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease;
+}
+
+.search-toggle:hover,
+.theme-toggle:hover,
+.rss-toggle:hover {
+  color: var(--link-color);
+}
+
+@media (min-width: 1001px) {
+
+  /* Only apply when sidebar is active */
+  .sidenote.sidenote-pushed-in,
+  .marginnote.sidenote-pushed-in {
+    float: none;
+    width: 100%;
+    margin: 1rem 0;
+    position: static;
+    clear: both;
+    display: block;
+    color: #999;
+    /* Greyed out */
+    border-left: 2px solid #ddd;
+    padding-left: 10px;
+    font-size: 0.85rem;
+    transition: all 0.3s ease;
+  }
+}
+
+@media (max-width: 1000px) {
   .wrapper {
     max-width: 90%;
   }
 
-  .sidenote {
+  .sidenote,
+  .marginnote {
     float: none;
     margin: 1rem 0;
     width: 100%;
     position: static;
     clear: both;
     display: block;
+    /* Always show on mobile */
+    color: var(--meta-color);
+    /* Greyed out */
+    border-left: 2px solid var(--border-color);
+    padding-left: 10px;
+    font-size: 0.85rem;
+    transition: all 0.3s ease;
   }
 
   .toc-sidebar {
@@ -823,14 +959,21 @@ article.post {
     max-width: 100%;
   }
 
-  .margin-toggle:checked+.sidenote {
+  .margin-toggle:checked+.sidenote,
+  .margin-toggle:checked+.marginnote {
     display: block;
   }
 
-  .sidenote-number {
+  .sidenote-number,
+  .margin-toggle.symbol {
+    display: inline;
     text-decoration: underline;
     text-decoration-style: dotted;
     color: var(--link-color);
+  }
+
+  .margin-toggle.symbol {
+    text-decoration: none;
   }
 }
 
@@ -904,5 +1047,174 @@ article.post {
     flex: auto;
     padding-top: 0;
     font-size: 0.85rem;
+  }
+}
+
+/* 
+==========================================================================
+   6. Prose Journal
+========================================================================== */
+.prose-journal {
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.journal-month {
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.journal-month:last-child {
+  border-bottom: none;
+}
+
+.journal-month-title {
+  font-family: var(--font-heading);
+  font-size: 1.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 15px 0;
+  list-style: none;
+  color: var(--heading-color);
+  transition: color 0.2s ease;
+}
+
+.journal-month-title:hover {
+  color: var(--link-color);
+}
+
+/* Hide default marker */
+.journal-month-title::-webkit-details-marker {
+  display: none;
+}
+
+.journal-month[open] .journal-month-title {
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 30px;
+}
+
+.journal-controls {
+  text-align: right;
+  margin-bottom: 20px;
+}
+
+.journal-toggle-btn {
+  background: none;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 5px 10px;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  color: var(--meta-color);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.journal-toggle-btn:hover {
+  border-color: var(--link-color);
+  color: var(--link-color);
+}
+
+.journal-entries {
+  padding-bottom: 40px;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.journal-entry {
+  margin-bottom: 40px;
+}
+
+.journal-entry-header {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.journal-entry-title {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+.journal-entry-title a {
+  color: var(--heading-color);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.journal-entry-title a:hover {
+  color: var(--link-color);
+}
+
+.journal-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 0;
+}
+
+.journal-tag-btn {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--meta-color);
+  padding: 2px 8px;
+  font-size: 0.75em;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: var(--font-body);
+  opacity: 0.6;
+}
+
+.journal-tag-btn:hover {
+  border-color: var(--text-color);
+  color: var(--text-color);
+  opacity: 1;
+}
+
+.journal-tag-btn.active {
+  background: var(--meta-color);
+  color: var(--bg-color);
+  border-color: var(--meta-color);
+  opacity: 1;
+}
+
+.loading-indicator {
+  text-align: center;
+  padding: 20px;
+  color: var(--text-color-secondary);
+  font-style: italic;
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+}
+
+.journal-entry-meta {
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  color: var(--meta-color);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.journal-entry-body {
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+  line-height: 1.8;
+}
+
+.journal-separator {
+  border: 0;
+  height: 1px;
+  background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0));
+  margin: 60px 0;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

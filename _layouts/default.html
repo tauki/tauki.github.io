@@ -9,10 +9,11 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap"
     rel="stylesheet">
   <link rel="icon" type="image/png" href="/assets/images/favicon.png">
-  <link rel="stylesheet" href="/assets/css/style.css?v=1">
+  <link rel="stylesheet" href="/assets/css/style.css?v={{ site.time | date: '%s' }}">
+  <link rel="alternate" type="application/rss+xml" title="{{ site.title }}" href="{{ " /feed.xml" | relative_url }}">
 </head>
 
 <body>
@@ -55,10 +56,15 @@
     </div>
   </main>
 
+  <footer class="site-footer">
+    <div class="wrapper">
+    </div>
+  </footer>
+
   {% include search-modal.html %}
 
-  <script src="/assets/js/search.js"></script>
-  <script src="/assets/js/main.js"></script>
+  <script src="/assets/js/search.js?v={{ site.time | date: '%s' }}"></script>
+  <script src="/assets/js/main.js?v={{ site.time | date: '%s' }}"></script>
 </body>
 
 </html>
