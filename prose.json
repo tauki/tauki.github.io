@@ -25,7 +25,7 @@ layout: null
       "title": {{ note.title | jsonify }},
       "slug": {{ note.title | slugify | jsonify }},
       "url": {{ note.url | relative_url | jsonify }},
-      "date": {{ note.date | jsonify }},
+      "date": {{ note.date | date_to_xmlschema | jsonify }},
       "subtitle": {{ note.subtitle | jsonify }},
       "categories": {{ note.categories | jsonify }},
       "content": {{ note.content | jsonify }}
