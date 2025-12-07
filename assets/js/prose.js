@@ -113,12 +113,25 @@ document.addEventListener('DOMContentLoaded', function () {
         const tocContainer = document.getElementById('toc-sidebar');
         if (!tocContainer) return;
 
+        const isMobile = window.innerWidth <= 1000;
+        const buttonText = isMobile ? '▲' : '▼'; // If collapsed (mobile), button should show expand arrow (▲)? No, wait. 
+        // Logic check: 
+        // Expanded: ▼ (shows content)
+        // Collapsed: ▲ (shows header only, click to expand)
+
+        // Let's verify standard behavior:
+        // Originally: <button>▼</button> and not collapsed. 
+
+        // If we want collapsed by default on mobile:
+        const initialClass = isMobile ? ' toc-content collapsed' : ' toc-content';
+        const initialButton = isMobile ? '▲' : '▼';
+
         let tocHTML = `
       <div class="toc-header">
         <span class="toc-title">On this page</span>
-        <button class="toc-toggle-btn">▼</button>
+        <button class="toc-toggle-btn">${initialButton}</button>
       </div>
-      <div class="toc-content">
+      <div class="${initialClass}">
         <ul class="toc-list">
     `;
 

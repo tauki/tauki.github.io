@@ -56,8 +56,11 @@ document.addEventListener('DOMContentLoaded', function () {
         const hasSidenotes = document.querySelector('.sidenote') !== null || document.querySelector('.marginnote') !== null;
 
         // Check if previously collapsed or default to hasSidenotes
+        // Also default to collapsed on mobile (<= 1000px)
         const existingContent = document.querySelector('.toc-content');
-        let isCollapsed = hasSidenotes;
+        const isMobile = window.innerWidth <= 1000;
+        let isCollapsed = hasSidenotes || isMobile;
+
         if (existingContent) {
             isCollapsed = existingContent.classList.contains('collapsed');
         }
