@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {%- seo -%}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap"
+        rel="stylesheet">
+    <link rel="icon" type="image/png" href="/assets/images/favicon.png">
+    <link rel="stylesheet" href="/assets/css/style.css?v={{ site.time | date: '%s' }}">
+    <link rel="alternate" type="application/rss+xml" title="{{ site.title }}" href="{{ " /feed.xml" | relative_url }}">
+</head>
+
+<body>
+    {% include header.html %}
+    <main class="page-content" aria-label="Content">
+        <div class="wrapper">
+            <article class="post">
+                <header class="post-header">
+                    <h1 class="post-title">{{ page.title | escape }}</h1>
+                    {% if page.subtitle %}
+                    <p class="post-subtitle">{{ page.subtitle }}</p>
+                    {% endif %}
+                    <div class="book-categories">
+                        <button class="filter-btn active" data-filter="all">All</button>
+                        {% assign all_tags = "" | split: "" %}
+                        {% for book in site.books %}
+                        {% for tag in book.tags %}
+                        {% assign all_tags = all_tags | push: tag %}
+                        {% endfor %}
+                        {% endfor %}
+                        {% assign all_tags = all_tags | uniq | sort %}
+                        {% for tag in all_tags %}
+                        <button class="filter-btn" data-filter="{{ tag }}">{{ tag }}</button>
+                        {% endfor %}
+                    </div>
+                </header>
+
+                <div class="post-content">
+                    {{ content }}
+                    
+                    <div class="book-grid">
+                        {% assign sorted_books = site.books | sort: 'title' %}
+                        {% for book in sorted_books %}
+                        <a href="{{ book.url }}" class="book-card" data-tags="{{ book.tags | join: ' ' }}">
+                            <div class="book-cover-wrapper">
+                                {% if book.cover %}
+                                <img src="{{ book.cover }}" alt="{{ book.title }}" class="book-cover">
+                                {% else %}
+                                <div class="book-cover-placeholder">{{ book.title | slice: 0, 1 }}</div>
+                                {% endif %}
+                                <div class="book-overlay">
+                                    <span class="view-details">Read Review</span>
+                                </div>
+                            </div>
+                            <h3 class="book-title">{{ book.title }}</h3>
+                            <p class="book-author">{{ book.author }}</p>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </article>
+        </div>
+    </main>
+    
+    <footer class="site-footer">
+        <div class="wrapper">
+        </div>
+    </footer>
+    
+    {% include search-modal.html %}
+    <script src="/assets/js/search.js"></script>
+    <script src="/assets/js/main.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            const books = document.querySelectorAll('.book-card');
+            
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Remove active class from all buttons
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    // Add active class to clicked button
+                    btn.classList.add('active');
+                    
+                    const filterValue = btn.getAttribute('data-filter');
+                    
+                    books.forEach(book => {
+                        if (filterValue === 'all') {
+                            book.style.display = 'block';
+                        } else {
+                            const tags = book.getAttribute('data-tags').split(' ');
+                            if (tags.includes(filterValue)) {
+                                book.style.display = 'block';
+                            } else {
+                                book.style.display = 'none';
+                            }
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

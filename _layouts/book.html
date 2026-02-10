@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {%- seo -%}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap"
+        rel="stylesheet">
+    <link rel="icon" type="image/png" href="/assets/images/favicon.png">
+    <link rel="stylesheet" href="/assets/css/style.css?v={{ site.time | date: '%s' }}">
+    <link rel="alternate" type="application/rss+xml" title="{{ site.title }}" href="{{ " /feed.xml" | relative_url }}">
+</head>
+
+<body>
+
+    {% include header.html %}
+
+    <main class="page-content" aria-label="Content">
+        <div class="wrapper">
+            <article class="post">
+
+                <div class="book-detail-container">
+                    <div class="book-cover-section">
+                        <div class="book-cover-3d">
+                            <img src="{{ page.cover }}" alt="{{ page.title }}" class="book-cover-large">
+                        </div>
+                    </div>
+
+                    <div class="book-info-section">
+                        <header class="post-header">
+                            <h1 class="post-title">{{ page.title }}</h1>
+                            <p class="post-subtitle">By {{ page.author }}</p>
+
+                            {% if page.tags %}
+                            <div class="post-tags">
+                                {% for tag in page.tags %}
+                                <a href="/books/#{{ tag | slugify }}" class="post-tag">{{ tag }}</a>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </header>
+
+                        <div class="post-content">
+                            {{ content }}
+                        </div>
+
+                        <div class="book-nav">
+                            <a href="/books" class="back-link">← Back to Reading List</a>
+                        </div>
+                    </div>
+                </div>
+
+            </article>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="wrapper">
+        </div>
+    </footer>
+
+    {% include search-modal.html %}
+
+    <script src="/assets/js/search.js?v={{ site.time | date: '%s' }}"></script>
+    <script src="/assets/js/main.js?v={{ site.time | date: '%s' }}"></script>
+</body>
+
+</html>

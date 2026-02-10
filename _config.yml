@@ -26,6 +26,9 @@ collections:
   notes:
     output: true
     permalink: /notes/:slug/
+  books:
+    output: true
+    permalink: /books/:slug/
 
 defaults:
   - scope:
