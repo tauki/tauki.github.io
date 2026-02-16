@@ -49,6 +49,23 @@
                             {{ content }}
                         </div>
 
+                        {% if page.affiliates %}
+                        <div class="affiliate-section">
+                            <div class="buy-buttons">
+                                {% for affiliate in page.affiliates %}
+                                <a href="{{ affiliate.url }}" class="buy-btn vendor-{{ affiliate.vendor | slugify }}"
+                                    target="_blank" rel="noopener noreferrer">
+                                    Buy on {{ affiliate.vendor }}
+                                </a>
+                                {% endfor %}
+                            </div>
+                            <p class="affiliate-disclaimer">
+                                <em>If you purchase through these links, I may earn a small referral fee at no extra
+                                    cost to you.</em>
+                            </p>
+                        </div>
+                        {% endif %}
+
                         <div class="book-nav">
                             <a href="/books" class="back-link">← Back to Reading List</a>
                         </div>

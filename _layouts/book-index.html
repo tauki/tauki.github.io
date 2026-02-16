@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -25,28 +26,64 @@
                     {% if page.subtitle %}
                     <p class="post-subtitle">{{ page.subtitle }}</p>
                     {% endif %}
-                    <div class="book-categories">
-                        <button class="filter-btn active" data-filter="all">All</button>
-                        {% assign all_tags = "" | split: "" %}
-                        {% for book in site.books %}
-                        {% for tag in book.tags %}
-                        {% assign all_tags = all_tags | push: tag %}
-                        {% endfor %}
-                        {% endfor %}
-                        {% assign all_tags = all_tags | uniq | sort %}
-                        {% for tag in all_tags %}
-                        <button class="filter-btn" data-filter="{{ tag }}">{{ tag }}</button>
-                        {% endfor %}
+                    <div class="book-filters">
+                        <div class="filter-group">
+                            <span class="filter-label">Tags:</span>
+                            <div class="filter-buttons">
+                                <button class="filter-btn active" data-filter="all" data-type="all">All</button>
+                                {% assign all_tags = "" | split: "" %}
+                                {% assign all_books = site.notes | where: "layout", "book" %}
+                                {% for book in all_books %}
+                                {% for tag in book.tags %}
+                                {% assign all_tags = all_tags | push: tag %}
+                                {% endfor %}
+                                {% endfor %}
+                                {% assign all_tags = all_tags | uniq | sort %}
+                                {% for tag in all_tags %}
+                                <button class="filter-btn" data-filter="{{ tag }}" data-type="tag">{{ tag }}</button>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="filter-group">
+                            <span class="filter-label">Authors:</span>
+                            <div class="filter-buttons">
+                                {% assign all_authors = "" | split: "" %}
+                                {% for book in all_books %}
+                                {% if book.author %}
+                                {% assign authors_list = book.author | split: ", " %}
+                                {% for author in authors_list %}
+                                {% assign all_authors = all_authors | push: author %}
+                                {% endfor %}
+                                {% endif %}
+                                {% endfor %}
+                                {% assign all_authors = all_authors | uniq | sort %}
+
+                                {% for author in all_authors %}
+                                <button class="filter-btn" data-filter="{{ author | slugify }}" data-type="author">{{
+                                    author }}</button>
+                                {% endfor %}
+                            </div>
+                        </div>
                     </div>
                 </header>
 
                 <div class="post-content">
                     {{ content }}
-                    
+
                     <div class="book-grid">
-                        {% assign sorted_books = site.books | sort: 'title' %}
+                        {% assign sorted_books = all_books | sort: 'title' %}
                         {% for book in sorted_books %}
-                        <a href="{{ book.url }}" class="book-card" data-tags="{{ book.tags | join: ' ' }}">
+                        {% assign authors_slugs = "" %}
+                        {% if book.author %}
+                        {% assign book_authors = book.author | split: ", " %}
+                        {% for author in book_authors %}
+                        {% assign slug = author | slugify %}
+                        {% assign authors_slugs = authors_slugs | append: slug | append: " " %}
+                        {% endfor %}
+                        {% endif %}
+                        <a href="{{ book.url }}" class="book-card" data-tags="{{ book.tags | join: ' ' }}"
+                            data-author="{{ authors_slugs }}">
                             <div class="book-cover-wrapper">
                                 {% if book.cover %}
                                 <img src="{{ book.cover }}" alt="{{ book.title }}" class="book-cover">
@@ -54,7 +91,14 @@
                                 <div class="book-cover-placeholder">{{ book.title | slice: 0, 1 }}</div>
                                 {% endif %}
                                 <div class="book-overlay">
-                                    <span class="view-details">Read Review</span>
+                                    <span class="view-details">Read Notes</span>
+                                    {% if book.affiliates and book.affiliates.size > 0 %}
+                                    {% assign first_affiliate = book.affiliates[0] %}
+                                    <span class="buy-on-hover"
+                                        onclick="event.preventDefault(); event.stopPropagation(); window.open('{{ first_affiliate.url }}', '_blank');">
+                                        Buy on {{ first_affiliate.vendor }}
+                                    </span>
+                                    {% endif %}
                                 </div>
                             </div>
                             <h3 class="book-title">{{ book.title }}</h3>
@@ -66,36 +110,44 @@
             </article>
         </div>
     </main>
-    
+
     <footer class="site-footer">
         <div class="wrapper">
         </div>
     </footer>
-    
+
     {% include search-modal.html %}
     <script src="/assets/js/search.js"></script>
     <script src="/assets/js/main.js"></script>
-    
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const filterBtns = document.querySelectorAll('.filter-btn');
             const books = document.querySelectorAll('.book-card');
-            
+
             filterBtns.forEach(btn => {
                 btn.addEventListener('click', () => {
                     // Remove active class from all buttons
                     filterBtns.forEach(b => b.classList.remove('active'));
                     // Add active class to clicked button
                     btn.classList.add('active');
-                    
+
                     const filterValue = btn.getAttribute('data-filter');
-                    
+                    const filterType = btn.getAttribute('data-type');
+
                     books.forEach(book => {
-                        if (filterValue === 'all') {
+                        if (filterType === 'all') {
                             book.style.display = 'block';
-                        } else {
+                        } else if (filterType === 'tag') {
                             const tags = book.getAttribute('data-tags').split(' ');
                             if (tags.includes(filterValue)) {
+                                book.style.display = 'block';
+                            } else {
+                                book.style.display = 'none';
+                            }
+                        } else if (filterType === 'author') {
+                            const bookAuthors = book.getAttribute('data-author').split(' ');
+                            if (bookAuthors.includes(filterValue)) {
                                 book.style.display = 'block';
                             } else {
                                 book.style.display = 'none';
@@ -107,4 +159,5 @@
         });
     </script>
 </body>
+
 </html>

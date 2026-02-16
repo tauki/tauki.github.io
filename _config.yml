@@ -26,9 +26,6 @@ collections:
   notes:
     output: true
     permalink: /notes/:slug/
-  books:
-    output: true
-    permalink: /books/:slug/
 
 defaults:
   - scope:
@@ -47,4 +44,5 @@ exclude:
   - vendor/cache/
   - vendor/gems/
   - vendor/ruby/
-  - _notes/assets/ 
+  - _notes/assets/
+  - to_process/

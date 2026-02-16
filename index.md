@@ -11,6 +11,7 @@ title: Home
     {% assign prose_categories = site.prose_categories %}
     {% assign notes = site.notes | sort: 'date' | reverse %}
     {% for note in notes %}
+      {% if note.layout == 'book' %}{% continue %}{% endif %}
       {% assign show_post = false %}
       
       {% if note.categories.size == 0 %}
@@ -68,7 +69,7 @@ title: Home
     <h3>Categories</h3>
     <ul class="category-list">
       <li><a href="#" onclick="filterPosts('all'); return false;" class="category-link active" data-category="all">All</a></li>
-      {% assign all_categories = site.notes | map: "categories" | flatten | uniq | sort %}
+      {% assign all_categories = site.notes | where_exp: "item", "item.layout != 'book'" | map: "categories" | flatten | uniq | sort %}
       {% for category in all_categories %}
         {% if prose_categories contains category %}
           {% continue %}
