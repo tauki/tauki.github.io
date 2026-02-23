@@ -18,6 +18,7 @@
 
 <body>
     {% include header.html %}
+    {% assign all_books = site.notes | where: "layout", "book" %}
     <main class="page-content" aria-label="Content">
         <div class="wrapper">
             <article class="post">
@@ -26,13 +27,13 @@
                     {% if page.subtitle %}
                     <p class="post-subtitle">{{ page.subtitle }}</p>
                     {% endif %}
+
                     <div class="book-filters">
                         <div class="filter-group">
                             <span class="filter-label">Tags:</span>
                             <div class="filter-buttons">
                                 <button class="filter-btn active" data-filter="all" data-type="all">All</button>
                                 {% assign all_tags = "" | split: "" %}
-                                {% assign all_books = site.notes | where: "layout", "book" %}
                                 {% for book in all_books %}
                                 {% for tag in book.tags %}
                                 {% assign all_tags = all_tags | push: tag %}
@@ -71,6 +72,48 @@
                 <div class="post-content">
                     {{ content }}
 
+                    <div class="book-search-container">
+                        <div class="book-search-bar-wrapper collapsed" id="book-search-bar-wrapper">
+                            <button class="book-search-icon-btn" id="book-search-icon-btn" aria-label="Toggle search">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <circle cx="11" cy="11" r="8" />
+                                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                                </svg>
+                            </button>
+                            <input type="text" id="book-search-input" class="book-search-input"
+                                placeholder="Search by title or author…" autocomplete="off" spellcheck="false">
+                            <button class="book-search-clear" id="book-search-clear" aria-label="Clear search"
+                                style="display:none">✕</button>
+                        </div>
+                        <span id="book-count" class="book-count-badge">{{ all_books.size }} books</span>
+                        <div class="view-switcher">
+                            <button class="view-btn active" id="view-grid-btn" title="Grid View">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <rect x="3" y="3" width="7" height="7"></rect>
+                                    <rect x="14" y="3" width="7" height="7"></rect>
+                                    <rect x="14" y="14" width="7" height="7"></rect>
+                                    <rect x="3" y="14" width="7" height="7"></rect>
+                                </svg>
+                            </button>
+                            <button class="view-btn" id="view-list-btn" title="List View">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <line x1="8" y1="6" x2="21" y2="6"></line>
+                                    <line x1="8" y1="12" x2="21" y2="12"></line>
+                                    <line x1="8" y1="18" x2="21" y2="18"></line>
+                                    <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                                    <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                                    <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
                     <div class="book-grid">
                         {% assign sorted_books = all_books | sort: 'title' %}
                         {% for book in sorted_books %}
@@ -83,7 +126,8 @@
                         {% endfor %}
                         {% endif %}
                         <a href="{{ book.url }}" class="book-card" data-tags="{{ book.tags | join: ' ' }}"
-                            data-author="{{ authors_slugs }}">
+                            data-author="{{ authors_slugs }}" data-title="{{ book.title | downcase }}"
+                            data-author-plain="{{ book.author | downcase }}">
                             <div class="book-cover-wrapper">
                                 {% if book.cover %}
                                 <img src="{{ book.cover }}" alt="{{ book.title }}" class="book-cover">
@@ -124,38 +168,110 @@
         document.addEventListener('DOMContentLoaded', () => {
             const filterBtns = document.querySelectorAll('.filter-btn');
             const books = document.querySelectorAll('.book-card');
+            const searchIconBtn = document.getElementById('book-search-icon-btn');
+            const searchBarWrapper = document.getElementById('book-search-bar-wrapper');
+            const searchInput = document.getElementById('book-search-input');
+            const clearBtn = document.getElementById('book-search-clear');
+            const countBadge = document.getElementById('book-count');
+            const bookGrid = document.querySelector('.book-grid');
+            const viewGridBtn = document.getElementById('view-grid-btn');
+            const viewListBtn = document.getElementById('view-list-btn');
+
+            let activeFilter = { value: 'all', type: 'all' };
+            let searchQuery = '';
+
+            function applyFilters() {
+                let visibleCount = 0;
+                books.forEach(book => {
+                    // Tag / author filter
+                    let passesFilter = false;
+                    if (activeFilter.type === 'all') {
+                        passesFilter = true;
+                    } else if (activeFilter.type === 'tag') {
+                        const tags = book.getAttribute('data-tags').split(' ');
+                        passesFilter = tags.includes(activeFilter.value);
+                    } else if (activeFilter.type === 'author') {
+                        const bookAuthors = book.getAttribute('data-author').split(' ');
+                        passesFilter = bookAuthors.includes(activeFilter.value);
+                    }
+
+                    // Search filter
+                    let passesSearch = true;
+                    if (searchQuery) {
+                        const title = book.getAttribute('data-title') || '';
+                        const author = book.getAttribute('data-author-plain') || '';
+                        passesSearch = title.includes(searchQuery) || author.includes(searchQuery);
+                    }
+
+                    const isVisible = passesFilter && passesSearch;
+                    book.style.display = isVisible ? '' : 'none';
+                    if (isVisible) visibleCount++;
+                });
+
+                if (countBadge) {
+                    countBadge.textContent = `${visibleCount} ${visibleCount === 1 ? 'book' : 'books'}`;
+                }
+            }
 
             filterBtns.forEach(btn => {
                 btn.addEventListener('click', () => {
-                    // Remove active class from all buttons
                     filterBtns.forEach(b => b.classList.remove('active'));
-                    // Add active class to clicked button
                     btn.classList.add('active');
-
-                    const filterValue = btn.getAttribute('data-filter');
-                    const filterType = btn.getAttribute('data-type');
-
-                    books.forEach(book => {
-                        if (filterType === 'all') {
-                            book.style.display = 'block';
-                        } else if (filterType === 'tag') {
-                            const tags = book.getAttribute('data-tags').split(' ');
-                            if (tags.includes(filterValue)) {
-                                book.style.display = 'block';
-                            } else {
-                                book.style.display = 'none';
-                            }
-                        } else if (filterType === 'author') {
-                            const bookAuthors = book.getAttribute('data-author').split(' ');
-                            if (bookAuthors.includes(filterValue)) {
-                                book.style.display = 'block';
-                            } else {
-                                book.style.display = 'none';
-                            }
-                        }
-                    });
+                    activeFilter = {
+                        value: btn.getAttribute('data-filter'),
+                        type: btn.getAttribute('data-type')
+                    };
+                    applyFilters();
                 });
             });
+
+            searchIconBtn.addEventListener('click', () => {
+                const isCollapsed = searchBarWrapper.classList.toggle('collapsed');
+                if (!isCollapsed) {
+                    setTimeout(() => searchInput.focus(), 200);
+                } else {
+                    searchInput.value = '';
+                    searchQuery = '';
+                    clearBtn.style.display = 'none';
+                    applyFilters();
+                }
+            });
+
+            searchInput.addEventListener('input', () => {
+                searchQuery = searchInput.value.trim().toLowerCase();
+                clearBtn.style.display = searchQuery ? 'flex' : 'none';
+                applyFilters();
+            });
+
+            clearBtn.addEventListener('click', () => {
+                searchInput.value = '';
+                searchQuery = '';
+                clearBtn.style.display = 'none';
+                searchInput.focus();
+                applyFilters();
+            });
+            // View Switcher logic
+            function setView(view) {
+                if (view === 'list') {
+                    bookGrid.classList.add('view-list');
+                    viewListBtn.classList.add('active');
+                    viewGridBtn.classList.remove('active');
+                } else {
+                    bookGrid.classList.remove('view-list');
+                    viewGridBtn.classList.add('active');
+                    viewListBtn.classList.remove('active');
+                }
+                localStorage.setItem('book-view-preference', view);
+            }
+
+            viewGridBtn.addEventListener('click', () => setView('grid'));
+            viewListBtn.addEventListener('click', () => setView('list'));
+
+            // Load preserved view
+            const savedView = localStorage.getItem('book-view-preference');
+            if (savedView) {
+                setView(savedView);
+            }
         });
     </script>
 </body>
