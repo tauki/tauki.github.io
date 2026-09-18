@@ -6,4 +6,5 @@ vendor/
 .bundle/
 .DS_Store
 *.swp
-*.swo 
+*.swo
+/orbital-playground/.orbital-export.json
